@@ -1,6 +1,6 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from datasets import load_dataset, Dataset
-from trl import SFTConfig, SFTTrainer, DataCollatorForCompletionOnlyLM
+from trl import SFTConfig, SFTTrainer, DataCollatorForChatML
 import json
 from peft import LoraConfig, get_peft_model
 import torch
@@ -54,7 +54,6 @@ lora_config = LoraConfig(
 model = get_peft_model(model, lora_config)
 model.gradient_checkpointing_disable()#  this one should be disable when load from lora.
 model.config.use_cache = False
-
 embedding_layer = model.get_input_embeddings()
 
 # Check if embedding weights are trainable
@@ -82,7 +81,7 @@ trainer = SFTTrainer(
 
 batch = next(iter(trainer.get_train_dataloader()))
 batch = {k: v.to("cuda:0") for k, v in batch.items()}  # Ensure batch is on correct device
-
+print(batch)
 outputs = model(**batch)
 loss = outputs.loss
 logits = outputs.logits
